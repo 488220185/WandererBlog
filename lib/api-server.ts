@@ -12,6 +12,21 @@ async function db() {
   return c.database
 }
 
+/**
+ * 统一的数据访问包装。
+ * 配置缺失或网络异常时返回兜底值，而不是把异常抛给 RSC——
+ * 否则整个页面会变成 500 白屏，访客看不到任何有用信息。
+ */
+async function safe<T>(fn: () => Promise<T>, fallback: T, label: string): Promise<T> {
+  try {
+    return await fn()
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error(`[api-server] ${label} 失败：${msg}`)
+    return fallback
+  }
+}
+
 export interface ServerListOptions {
   page?: number
   tag?: string
@@ -29,53 +44,76 @@ export async function serverListPosts(opts: ServerListOptions = {}): Promise<Ser
   const from = (page - 1) * POSTS_PER_PAGE
   const to = from + POSTS_PER_PAGE - 1
 
-  const database = await db()
-  let query = database
-    .from('posts')
-    .select(
-      'id, title, slug, excerpt, cover_url, tags, status, views, reading_minutes, created_at, updated_at, owner_id',
-      { count: 'exact' },
-    )
-    .eq('status', 'published')
-    .order('created_at', { ascending: false })
+  const empty = { posts: [] as Post[], total: 0, totalPages: 1 }
+  const queryStr = tag || keyword ? `?tag=${tag ?? ''}&q=${keyword ?? ''}` : ''
 
-  if (tag) query = query.contains('tags', [tag])
-  if (keyword) {
-    const safe = keyword.replace(/[,()]/g, ' ')
-    query = query.or(`title.ilike.*${safe}*,excerpt.ilike.*${safe}*`)
-  }
+  return safe(
+    async () => {
+      const database = await db()
+      let query = database
+        .from('posts')
+        .select(
+          'id, title, slug, excerpt, cover_url, tags, status, views, reading_minutes, created_at, updated_at, owner_id',
+          { count: 'exact' },
+        )
+        .eq('status', 'published')
+        .order('created_at', { ascending: false })
 
-  const { data, error, count } = await query.range(from, to)
-  if (error) throw error
-  const total = count ?? 0
-  return {
-    posts: (data ?? []) as Post[],
-    total,
-    totalPages: Math.max(1, Math.ceil(total / POSTS_PER_PAGE)),
-  }
+      if (tag) query = query.contains('tags', [tag])
+      if (keyword) {
+        const kw = keyword.replace(/[,()]/g, ' ')
+        query = query.or(`title.ilike.*${kw}*,excerpt.ilike.*${kw}*`)
+      }
+
+      const { data, error, count } = await query.range(from, to)
+      if (error) throw error
+      const total = count ?? 0
+      return {
+        posts: (data ?? []) as Post[],
+        total,
+        totalPages: Math.max(1, Math.ceil(total / POSTS_PER_PAGE)),
+      }
+    },
+    empty,
+    `listPosts${queryStr}`,
+  )
 }
 
 export async function serverGetPostBySlug(slug: string): Promise<Post | null> {
-  const database = await db()
-  const { data, error } = await database
-    .from('posts')
-    .select('*')
-    .eq('slug', slug)
-    .eq('status', 'published')
-    .maybeSingle()
-  if (error) throw error
-  return (data as Post | null) ?? null
+  return safe(
+    async () => {
+      const database = await db()
+      const { data, error } = await database
+        .from('posts')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .maybeSingle()
+      if (error) throw error
+      return (data as Post | null) ?? null
+    },
+    null,
+    `getPostBySlug(${slug})`,
+  )
 }
 
 export async function serverGetAllTags(): Promise<{ tag: string; count: number }[]> {
-  const database = await db()
-  const { data, error } = await database
-    .from('posts')
-    .select('tags')
-    .eq('status', 'published')
-  if (error) throw error
+  const result = await safe(
+    async () => {
+      const database = await db()
+      const { data, error } = await database
+        .from('posts')
+        .select('tags')
+        .eq('status', 'published')
+      if (error) throw error
+      return data ?? []
+    },
+    [] as { tags: string[] }[],
+    'getAllTags',
+  )
+
   const counter = new Map<string, number>()
-  for (const row of (data ?? []) as { tags: string[] }[]) {
+  for (const row of result as { tags: string[] }[]) {
     for (const t of row.tags ?? []) counter.set(t, (counter.get(t) ?? 0) + 1)
   }
   return [...counter.entries()]
@@ -85,22 +123,34 @@ export async function serverGetAllTags(): Promise<{ tag: string; count: number }
 
 /** sitemap 需要全部已发布文章的 slug */
 export async function serverGetAllSlugs(): Promise<{ slug: string; updated_at: string }[]> {
-  const database = await db()
-  const { data, error } = await database
-    .from('posts')
-    .select('slug, updated_at')
-    .eq('status', 'published')
-  if (error) throw error
-  return (data ?? []) as { slug: string; updated_at: string }[]
+  return safe(
+    async () => {
+      const database = await db()
+      const { data, error } = await database
+        .from('posts')
+        .select('slug, updated_at')
+        .eq('status', 'published')
+      if (error) throw error
+      return (data ?? []) as { slug: string; updated_at: string }[]
+    },
+    [],
+    'getAllSlugs',
+  )
 }
 
 export async function serverGetSiteProfile(): Promise<SiteProfile | null> {
-  const database = await db()
-  const { data, error } = await database
-    .from('site_owner')
-    .select('*')
-    .limit(1)
-    .maybeSingle()
-  if (error) return null
-  return (data as SiteProfile | null) ?? null
+  return safe(
+    async () => {
+      const database = await db()
+      const { data, error } = await database
+        .from('site_owner')
+        .select('*')
+        .limit(1)
+        .maybeSingle()
+      if (error) return null
+      return (data as SiteProfile | null) ?? null
+    },
+    null,
+    'getSiteProfile',
+  )
 }
