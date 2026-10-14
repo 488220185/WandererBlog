@@ -1,0 +1,26 @@
+# ===== 流浪者博客 · 推送到 GitHub =====
+# 在 PowerShell 里逐行粘贴执行
+# 第一行把内置 git 加入当前窗口的 PATH
+
+$gitDir = "C:\Users\48822\.workbuddy\binaries\PortableGit\versions\1.2.0\cmd"
+$env:Path = "$gitDir;$env:Path"
+git --version
+
+cd D:\博客
+
+# ---------- 1. 初始化仓库（之前漏了这一步）----------
+git init -b main
+
+# ---------- 2. 配置身份（没配过会报错）----------
+git config user.name "488220185"
+git config user.email "你的GitHub邮箱"
+
+# ---------- 3. 添加文件并提交 ----------
+git add .
+git commit -m "feat: 流浪者博客"
+
+# ---------- 4. 关联远程仓库 ----------
+git remote add origin https://github.com/488220185/WandererBlog.git
+
+# ---------- 5. 推送 ----------
+git push -u origin main

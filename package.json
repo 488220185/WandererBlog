@@ -1,0 +1,41 @@
+{
+  "name": "dev-notes-blog",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -H 0.0.0.0",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0",
+    "lint": "next lint",
+    "seed:export": "node scripts/export-seed.mjs > seed/posts.json",
+    "seed:import": "node scripts/import-seed.mjs",
+    "verify:cloud": "node scripts/verify-cloud.mjs"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.117.3",
+    "@tencent-ai/workbuddy-cloud-sdk": "dev",
+    "clsx": "2.1.1",
+    "highlight.js": "11.11.1",
+    "next": "15.5.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "react-markdown": "10.1.0",
+    "rehype-highlight": "7.0.2",
+    "rehype-raw": "7.0.0",
+    "rehype-sanitize": "6.0.0",
+    "rehype-stringify": "^10.0.1",
+    "remark-gfm": "4.0.1",
+    "remark-parse": "^11.0.0",
+    "remark-rehype": "^11.1.2",
+    "unified": "^11.0.5"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.2",
+    "@types/react": "19.1.8",
+    "@types/react-dom": "19.1.6",
+    "autoprefixer": "10.4.20",
+    "postcss": "8.4.49",
+    "tailwindcss": "3.4.17",
+    "typescript": "5.7.2"
+  }
+}

@@ -1,0 +1,208 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ink-950 text-slate-300 font-sans antialiased;
+  background-image:
+    radial-gradient(900px 500px at 15% -10%, rgba(74, 222, 128, 0.07), transparent 60%),
+    radial-gradient(800px 460px at 95% 0%, rgba(34, 211, 238, 0.06), transparent 55%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: rgba(74, 222, 128, 0.28);
+  color: #e2e8f0;
+}
+
+/* 滚动条 */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0b0e17;
+}
+::-webkit-scrollbar-thumb {
+  background: #232a3b;
+  border-radius: 6px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #333c52;
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-5xl px-5 sm:px-8;
+  }
+
+  .card {
+    @apply rounded-xl border border-ink-700/70 bg-ink-850/70 backdrop-blur-sm;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium
+           transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-accent text-ink-950 hover:bg-accent-dim hover:shadow-[0_0_24px_-6px_rgba(74,222,128,0.6)];
+  }
+  .btn-ghost {
+    @apply btn border border-ink-600 bg-ink-800/60 text-slate-300 hover:border-ink-600 hover:bg-ink-750 hover:text-slate-100;
+  }
+  .btn-danger {
+    @apply btn border border-red-900/70 bg-red-950/40 text-red-300 hover:bg-red-900/40;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-ink-600 bg-ink-900/80 px-3.5 py-2.5 text-sm text-slate-200
+           placeholder:text-slate-600 outline-none transition-colors
+           focus:border-accent/70 focus:ring-2 focus:ring-accent/15;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-md border border-ink-600 bg-ink-800/70 px-2 py-0.5
+           text-[11px] font-medium text-slate-400 transition-colors;
+  }
+  .chip-active {
+    @apply border-accent/50 bg-accent-soft text-accent;
+  }
+
+  .link-underline {
+    @apply bg-gradient-to-r from-accent/70 to-accent/70 bg-[length:0%_1px] bg-left-bottom bg-no-repeat
+           transition-[background-size] duration-300 hover:bg-[length:100%_1px];
+  }
+}
+
+/* ---------------- Markdown 正文排版 ---------------- */
+.md-body {
+  @apply text-[15px] leading-[1.85] text-slate-300;
+}
+.md-body > * + * {
+  @apply mt-5;
+}
+.md-body h1 {
+  @apply mt-10 border-b border-ink-700 pb-2 text-2xl font-bold text-slate-50;
+}
+.md-body h2 {
+  @apply mt-10 border-b border-ink-700/70 pb-2 text-xl font-bold text-slate-50;
+}
+.md-body h3 {
+  @apply mt-8 text-base font-bold text-slate-100;
+}
+.md-body h4 {
+  @apply mt-6 text-sm font-bold text-slate-100;
+}
+.md-body p {
+  @apply text-slate-300/95;
+}
+.md-body a {
+  @apply text-accent underline decoration-accent/40 underline-offset-4 hover:decoration-accent;
+}
+.md-body strong {
+  @apply font-semibold text-slate-100;
+}
+.md-body ul {
+  @apply list-disc space-y-2 pl-6 marker:text-accent/70;
+}
+.md-body ol {
+  @apply list-decimal space-y-2 pl-6 marker:text-slate-500;
+}
+.md-body blockquote {
+  @apply border-l-2 border-accent/60 bg-accent-soft/50 py-2 pl-4 pr-3 text-slate-400;
+}
+.md-body blockquote p {
+  @apply text-slate-400;
+}
+.md-body code {
+  @apply rounded border border-ink-700 bg-ink-900 px-1.5 py-0.5 font-mono text-[0.83em] text-cyan;
+}
+.md-body pre {
+  @apply overflow-x-auto rounded-xl border border-ink-700 bg-ink-900 p-4 text-[13px] leading-relaxed;
+}
+.md-body pre code {
+  @apply border-0 bg-transparent p-0 text-[13px] text-slate-300;
+}
+.md-body img {
+  @apply rounded-xl border border-ink-700;
+}
+.md-body hr {
+  @apply border-ink-700;
+}
+.md-body table {
+  @apply w-full border-collapse overflow-hidden rounded-lg text-sm;
+}
+.md-body th {
+  @apply border border-ink-700 bg-ink-800 px-3 py-2 text-left font-semibold text-slate-200;
+}
+.md-body td {
+  @apply border border-ink-700 px-3 py-2;
+}
+.md-body input[type='checkbox'] {
+  @apply mr-2 accent-accent;
+}
+
+/* ---------------- 代码高亮（github-dark 配色） ---------------- */
+.hljs {
+  @apply text-slate-300;
+}
+.hljs-comment,
+.hljs-quote {
+  @apply italic text-slate-600;
+}
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-doctag,
+.hljs-name,
+.hljs-type {
+  @apply text-[#ff7b72];
+}
+.hljs-string,
+.hljs-regexp,
+.hljs-addition,
+.hljs-attribute,
+.hljs-meta .hljs-string {
+  @apply text-[#a5d6ff];
+}
+.hljs-number,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-link {
+  @apply text-[#79c0ff];
+}
+.hljs-title,
+.hljs-section,
+.hljs-title.function_ {
+  @apply text-[#d2a8ff];
+}
+.hljs-variable,
+.hljs-template-variable,
+.hljs-attr,
+.hljs-selector-attr,
+.hljs-selector-pseudo {
+  @apply text-[#ffa657];
+}
+.hljs-built_in,
+.hljs-class .hljs-title {
+  @apply text-[#7ee787];
+}
+.hljs-params {
+  @apply text-slate-300;
+}
+.hljs-meta {
+  @apply text-[#8b949e];
+}
+.hljs-deletion {
+  @apply text-[#ffa198];
+}
+.hljs-emphasis {
+  @apply italic;
+}
+.hljs-strong {
+  @apply font-bold;
+}
