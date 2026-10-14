@@ -17,6 +17,6 @@ export const metadata: Metadata = {
 }
 
 export default async function TagsPage() {
-  const tags = await serverGetAllTags()
+  const tags = await serverGetAllTags().catch(() => [])
   return <TagIndexView tags={tags} />
 }

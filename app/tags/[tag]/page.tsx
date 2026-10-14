@@ -13,7 +13,7 @@ interface RouteParams {
 export async function generateMetadata({ params }: RouteParams): Promise<Metadata> {
   const { tag } = await params
   const decoded = decodeURIComponent(tag)
-  const { posts } = await serverListPosts({ tag: decoded })
+  const { posts } = await serverListPosts({ tag: decoded }).catch(() => ({ posts: [], total: 0, totalPages: 1 }))
   const desc =
     posts.length > 0
       ? `${SITE_NAME}中关于「${decoded}」的文章，共 ${posts.length} 篇：${posts
@@ -36,6 +36,10 @@ export async function generateMetadata({ params }: RouteParams): Promise<Metadat
 export default async function TagPage({ params }: RouteParams) {
   const { tag } = await params
   const decoded = decodeURIComponent(tag)
-  const { posts } = await serverListPosts({ tag: decoded })
+  const { posts } = await serverListPosts({ tag: decoded }).catch(() => ({
+    posts: [],
+    total: 0,
+    totalPages: 1,
+  }))
   return <TagDetailView tag={decoded} posts={posts} />
 }

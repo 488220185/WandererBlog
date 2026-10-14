@@ -40,9 +40,9 @@ const TOPICS = [
 
 export default async function AboutPage() {
   const [profile, list, tags] = await Promise.all([
-    serverGetSiteProfile(),
-    serverListPosts({ page: 1 }),
-    serverGetAllTags(),
+    serverGetSiteProfile().catch(() => null),
+    serverListPosts({ page: 1 }).catch(() => ({ posts: [], total: 0, totalPages: 1 })),
+    serverGetAllTags().catch(() => []),
   ])
 
   const recent = list.posts

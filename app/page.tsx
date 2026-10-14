@@ -22,10 +22,15 @@ export default async function HomePage({
   const tag = sp.tag?.trim() || undefined
   const q = sp.q?.trim() || undefined
 
+  // 任一数据源失败都不应让整页 500：降级为空列表并保留可读提示
+  let loadError: string | null = null
   const [list, tags, profile] = await Promise.all([
-    serverListPosts({ page, tag, keyword: q }),
-    serverGetAllTags(),
-    serverGetSiteProfile(),
+    serverListPosts({ page, tag, keyword: q }).catch((e: unknown) => {
+      loadError = e instanceof Error ? e.message : String(e)
+      return { posts: [], total: 0, totalPages: 1 }
+    }),
+    serverGetAllTags().catch(() => []),
+    serverGetSiteProfile().catch(() => null),
   ])
 
   const title = profile?.blog_title ?? SITE_NAME
@@ -119,6 +124,22 @@ export default async function HomePage({
       </div>
 
       <div className="container-page pt-8">
+        {loadError && (
+          <div className="card mb-6 border-amber-600/50 bg-amber-950/20 p-5">
+            <p className="font-mono text-xs uppercase tracking-wider text-amber-400">
+              数据加载失败
+            </p>
+            <p className="mt-2 break-words text-sm leading-relaxed text-slate-300">
+              {loadError}
+            </p>
+            <p className="mt-3 text-xs leading-relaxed text-slate-500">
+              若提示缺少 Supabase 配置，请检查 Vercel 项目的环境变量是否已按
+              <code className="mx-1 font-mono text-cyan">NEXT_PUBLIC_</code>
+              前缀命名，并在改动后重新部署。
+            </p>
+          </div>
+        )}
+
         {list.posts.length === 0 ? (
           <div className="card flex flex-col items-center gap-3 px-6 py-16 text-center">
             <span className="font-mono text-3xl text-slate-700">~/</span>
