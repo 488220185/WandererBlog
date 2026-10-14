@@ -12,3 +12,7 @@ npm-debug.log*
 next-env.d.ts
 
 # 注意：seed/ 需要提交，里面是文章迁移种子
+
+# 临时操作指引（不入库）
+*-直接粘贴.txt
+修复git推送.txt
