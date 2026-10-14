@@ -16,7 +16,7 @@
     "@tencent-ai/workbuddy-cloud-sdk": "dev",
     "clsx": "2.1.1",
     "highlight.js": "11.11.1",
-    "next": "15.5.4",
+    "next": "15.5.9",
     "react": "19.1.1",
     "react-dom": "19.1.1",
     "react-markdown": "10.1.0",
